@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Travel Results</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        #map { 
+            height: 400px; 
+            width: 100%; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mt-4">Travel Results</h1>
+                <table id="travelTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>序列</th>
+                            <th>起始地點</th>
+                            <th>目的地</th>
+                            <th>距離</th>
+                            <th>預估時間</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for direction in directions %}
+                            <tr>
+                                <td>{{ direction.index }}</td>
+                                <td>{{ direction.origin_name }}</td>
+                                <td>{{ direction.destination_name }}</td>
+                                <td>{{ direction.distance }}</td>
+                                <td>{{ direction.duration }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <button class="btn btn-primary">
+            <a href="{{ url_for('index') }}" style="color: white; text-decoration: none;">
+                回到首頁
+            </a>
+        </button>
+        <div class="row mt-4">
+            <div class="col-12">
+                <div id="map" style="height: 100vh;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    
+    <script>
+        // Create the map
+        var map = L.map('map');
+    
+        // Add the OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        var bounds = L.latLngBounds();
+        
+        {% for location in locations %}
+            var destination = L.marker([{{ location.map.lat }}, {{ location.map.lng }}]).addTo(map)
+                .bindTooltip('{{ location.name }}', {permanent: true, direction: "right"})
+                .openTooltip();
+                
+            bounds.extend(destination.getLatLng());
+        {% endfor %}
+        
+        if (bounds.isValid()) {
+            map.fitBounds(bounds);
+        }
+        
+        $(document).ready(function() {
+            $('#travelTable').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csvHtml5',
+                        text: '下載 CSV',
+                        titleAttr: '下載 CSV',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4]
+                        },
+                        className: 'btn btn-primary',
+                        init: function(api, node, config) {
+                            $(node).removeClass('dt-button');
+                        }
+                    }
+                ]
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>  
+    
+</body>
+</html>
