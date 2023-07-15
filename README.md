@@ -22,11 +22,15 @@ python app.py
 如何使用
 在首頁輸入起點和終點地點，每行一個地點。
 
+![示例圖片](TravelPlanner.png)
+
 點擊「Submit」按鈕以獲取路線規劃結果。
 
 系統將使用 Google Maps API 獲取每個起點和終點之間的路線、距離和預計時間。
 
 結果將顯示在結果頁面，包括每個路線的起點和終點、路線地圖、距離和預計時間。
+
+![示例圖片](Results.png)
 
 注意事項
 請確保已在 Config.yml 檔案中設定了正確的 Google Maps API 金鑰。
